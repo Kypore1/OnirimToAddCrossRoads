@@ -159,10 +159,14 @@ public class Onirim extends JFrame
 			// 1 key
 			// 3 suns
 			// 2 moons
-			limbo.add(new Card(deadEnd, "deadEnd", "deadEnd"));
-			limbo.add(new Card(xs, "locationSun", "wildCard"));
+			for (int i = 0; i < 10; i++) 
+				limbo.add(new Card(deadEnd, "deadEnd", "deadEnd"));
+			for (int i = 0; i < 30; i++) 
+				limbo.add(new Card(xs, "locationSun", "wildCard"));
+			for (int i = 0; i < 2; i++) 
+				limbo.add(new Card(xm, "locationMoon", "wildCard"));
 			limbo.add(new Card(xk, "locationKey", "wildCard"));
-			limbo.add(new Card(xm, "locationMoon", "wildCard"));
+			
 		}
 		
 		for(int i = 0; i < 10; i++) 
@@ -545,11 +549,11 @@ public class Onirim extends JFrame
 		}
 	}
 	
-	public boolean searchHandForCorrectKey(Card door)
+	public boolean searchHandForCorrectKey(Card door)//TODO
 	{
 		for(Card c : hand)
 		{
-			if(c.getType().contains("Key") && c.getColor().contains(door.getColor())) //fine
+			if(c.getType().contains("Key") && (c.getColor().contains(door.getColor())||c.getColor().contains("wildCard"))) //fine
 				return true;
 		}
 		return false;
@@ -565,7 +569,7 @@ public class Onirim extends JFrame
 //		return false;
 //	}
 	
-	public void searchDeckForDoor(Card c)
+	public void searchDeckForDoor(Card c)//TODO gotta make it draw the right door
 	{
 		for(int j = 0; j < deck.size(); j++)
 		{
@@ -585,7 +589,7 @@ public class Onirim extends JFrame
 		}
 	}
 	
-	public boolean isValidLocationPlay(Card c)
+	public boolean isValidLocationPlay(Card c)//TODO
 	{
 		if(c.getType().contains("door") || c.getType().contains("dream")) 
 			return false;
@@ -612,7 +616,29 @@ public class Onirim extends JFrame
 	// postcondition.  if we complete a set, we look for a door and update the indexOfLastSet
 	
 	//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-	public void playLocation(Card c)
+	public int compareCards(Card a, Card b)//compares two cards and returns 1 if they are both the same 
+	{
+		if(a.getColor().equals(b.getColor()))
+			return 1;
+		return 0;
+	}
+	public boolean validSet(Card a, Card b, Card c)// checks to see if the sum of a set is less than or equal to four
+	{
+		String toCheck = (a.getColor()+" "+b.getColor()+" "+c.getClass());
+		int //add together all the instances of wild then add them to the checkSum
+		int checkOne = compareCards(a,b);
+		int checkTwo =compareCards(a,c);
+		int checkThree = compareCards(c,b);
+		int checkSum = checkOne+checkTwo+checkThree;
+		System.out.println("here");
+		System.out.println(checkSum+" "+checkOne+" "+checkTwo+" "+checkThree);
+		if(checkOne>0&&checkTwo>0&&checkThree>0&&(checkSum==3||checkSum==5))
+		{
+			return true;
+		}
+		return false;
+	}
+	public void playLocation(Card c)//TODO
 	{
 		numLocationsPlayed++; 
 		hand.remove(c);
@@ -622,12 +648,28 @@ public class Onirim extends JFrame
 		if(playedLocations.size() >= indexOfLastSet + 3)
 		{
 			String col = playedLocations.get(playedLocations.size()-1).getColor();
-			if(col.equals(playedLocations.get(playedLocations.size() -2).getColor()) &&
-					col.equals(playedLocations.get(playedLocations.size() -3).getColor()))
+//			if((col.equals(playedLocations.get(playedLocations.size() -2).getColor())) &&
+//					col.equals(playedLocations.get(playedLocations.size() -3).getColor()))
+			if(validSet(playedLocations.get(playedLocations.size()-1), playedLocations.get(playedLocations.size()-2), playedLocations.get(playedLocations.size()-3)))
 			{
+				
 				lockLastLocationPlay();
 				indexOfLastSet = playedLocations.size() /*-1*/;
-				searchDeckForDoor(playedLocations.get(playedLocations.size()-1));
+				if(playedLocations.get(playedLocations.size()-1).getColor().equals("wildCard"))
+				{
+					if(playedLocations.get(playedLocations.size()-2).equals("wildCard"))
+					{
+						searchDeckForDoor(playedLocations.get(playedLocations.size()-3));
+					}
+					else
+					{
+						searchDeckForDoor(playedLocations.get(playedLocations.size()-2));
+					}
+				}
+				else
+				{
+					searchDeckForDoor(playedLocations.get(playedLocations.size()-1));
+				}
 			}
 		}
 		
@@ -765,7 +807,7 @@ public class Onirim extends JFrame
 		return playedDoors.size() == 8;
 	}
 	
-	public void scoreDoorFromKey(Card k)
+	public void scoreDoorFromKey(Card k)//TODO
 	{
 		doorFromKey.setY(10);
 		doorFromKey.setX((int)(30+(cardWidth*scaleFactor)*(nextDoorIndex()+1)));
