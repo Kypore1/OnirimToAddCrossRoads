@@ -618,21 +618,38 @@ public class Onirim extends JFrame
 	//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 	public int compareCards(Card a, Card b)//compares two cards and returns 1 if they are both the same 
 	{
+		
+		if(a.getColor().equals("wildCard"))
+		{
+			if(b.getColor().equals("wildCard"))
+			{
+				return 2;
+			}
+			else 
+				return 1;
+		}
+		if(b.getColor().equals("wildCard"))
+		{
+			if(a.getColor().equals("wildCard"))
+			{
+				return 2;
+			}
+			else 
+				return 1;
+		}
 		if(a.getColor().equals(b.getColor()))
 			return 1;
 		return 0;
 	}
 	public boolean validSet(Card a, Card b, Card c)// checks to see if the sum of a set is less than or equal to four
 	{
-		String toCheck = (a.getColor()+" "+b.getColor()+" "+c.getClass());
-		int //add together all the instances of wild then add them to the checkSum
 		int checkOne = compareCards(a,b);
 		int checkTwo =compareCards(a,c);
 		int checkThree = compareCards(c,b);
 		int checkSum = checkOne+checkTwo+checkThree;
 		System.out.println("here");
 		System.out.println(checkSum+" "+checkOne+" "+checkTwo+" "+checkThree);
-		if(checkOne>0&&checkTwo>0&&checkThree>0&&(checkSum==3||checkSum==5))
+		if(checkOne>0&&checkTwo>0&&checkThree>0&&checkSum==3)
 		{
 			return true;
 		}
