@@ -150,6 +150,9 @@ public class Onirim extends JFrame
 				
 		limbo.add(new Card(td, "door", "tan"));
 		limbo.add(new Card(td, "door", "tan"));
+
+		
+		
 		
 		// if playing with the crossroads expansion
 		if(crossroadExpansion)
@@ -160,11 +163,12 @@ public class Onirim extends JFrame
 			// 3 suns
 			// 2 moons
 			for (int i = 0; i < 10; i++) 
-				limbo.add(new Card(deadEnd, "deadEnd", "deadEnd"));
-			for (int i = 0; i < 30; i++) 
+				limbo.add(new Card(deadEnd, "locationDeadEnd", "deadEnd"));
+			for (int i = 0; i < 3; i++) 
 				limbo.add(new Card(xs, "locationSun", "wildCard"));
 			for (int i = 0; i < 2; i++) 
 				limbo.add(new Card(xm, "locationMoon", "wildCard"));
+			for (int i = 0; i < 50; i++)
 			limbo.add(new Card(xk, "locationKey", "wildCard"));
 			
 		}
@@ -339,7 +343,7 @@ public class Onirim extends JFrame
 				g.setColor(highlight);
 				for(Card c : hand)
 				{
-					if(c.getType().contains("Key") && c.getColor().contains(doorFromKey.getColor()))
+					if(c.getType().contains("Key") && (c.getColor().contains(doorFromKey.getColor())||c.getColor().contains("wildCard")))
 						g.fillRect(c.getX(), c.getY(), cardWidth, cardHeight);
 				}
 				g.setColor(Color.WHITE);
@@ -421,7 +425,11 @@ public class Onirim extends JFrame
 			}
 		}
 	}
-	
+	public void escape()//escapes the current hand discarding it and refilling it
+	{
+		fillingHandSoIgnoreNightmares=true;
+		discardAndFillHand();
+	}
 	public void shuffleLimbo()
 	{
 		if(limbo.size() != 0)
@@ -549,11 +557,11 @@ public class Onirim extends JFrame
 		}
 	}
 	
-	public boolean searchHandForCorrectKey(Card door)//TODO
+	public boolean searchHandForCorrectKey(Card door)
 	{
 		for(Card c : hand)
 		{
-			if(c.getType().contains("Key") && (c.getColor().contains(door.getColor())||c.getColor().contains("wildCard"))) //fine
+			if((c.getType().contains("Key") && (c.getColor().contains(door.getColor()))||(c.getType().contains("Key")&&c.getColor().contains("wildCard")))) //fine
 				return true;
 		}
 		return false;
@@ -569,7 +577,7 @@ public class Onirim extends JFrame
 //		return false;
 //	}
 	
-	public void searchDeckForDoor(Card c)//TODO gotta make it draw the right door
+	public void searchDeckForDoor(Card c)
 	{
 		for(int j = 0; j < deck.size(); j++)
 		{
@@ -589,9 +597,9 @@ public class Onirim extends JFrame
 		}
 	}
 	
-	public boolean isValidLocationPlay(Card c)//TODO
+	public boolean isValidLocationPlay(Card c)
 	{
-		if(c.getType().contains("door") || c.getType().contains("dream")) 
+		if(c.getType().contains("door") || c.getType().contains("dream")||c.getType().contains("DeadEnd")) 
 			return false;
 		String type = "";
 		if(numLocationsPlayed != 0)
@@ -602,7 +610,7 @@ public class Onirim extends JFrame
 		return !toRet;
 	}
 	
-	public boolean isDiscard(Card c)
+	public boolean isDiscard(Card c)//TODO make the discard work
 	{
 		return c.getY() <= drawMinY && c.getX() < drawMaxX - 5 && !(c.getType().contains("door"));
 	}
@@ -777,7 +785,7 @@ public class Onirim extends JFrame
 				if(x > c.getX() + fudgeX && x < c.getX() + cardWidth + fudgeX
 						&& y > c.getY() + fudgeY && y < c.getY() + cardHeight + fudgeY)
 				{
-					if(c.getType().contains("Key") && c.getColor().contains(d.getColor())) //fine
+					if(c.getType().contains("Key") && (c.getColor().contains(d.getColor())||c.getColor().contains("wildCard"))) //fine
 						return c;
 				}
 			}
@@ -824,7 +832,7 @@ public class Onirim extends JFrame
 		return playedDoors.size() == 8;
 	}
 	
-	public void scoreDoorFromKey(Card k)//TODO
+	public void scoreDoorFromKey(Card k)
 	{
 		doorFromKey.setY(10);
 		doorFromKey.setX((int)(30+(cardWidth*scaleFactor)*(nextDoorIndex()+1)));
@@ -1126,7 +1134,7 @@ public class Onirim extends JFrame
 		public void mouseEntered(MouseEvent mickey) {}
 		public void mouseExited(MouseEvent mickey) {}
 		
-		public void mousePressed(MouseEvent mickey) 
+		public void mousePressed(MouseEvent mickey) //TODO add in the trapdoor maybe do this in mouse released instead?
 		{
 			if(titleScreen)
 			{
@@ -1248,7 +1256,7 @@ public class Onirim extends JFrame
 						setPlayedLocationCoordinates(c);
 					}
 					//DISCARD
-					else if(!hasBeenPlayed && isDiscard(c) && !prophecyCards.contains(c))
+					else if(!hasBeenPlayed && isDiscard(c) && !prophecyCards.contains(c)&&!c.getType().contains("DeadEnd"))
 					{
 						sendToDiscard(c);
 						if(c.getType().contains("Key") )
