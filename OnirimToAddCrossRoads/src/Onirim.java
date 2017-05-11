@@ -308,6 +308,7 @@ public class Onirim extends JFrame
 			}
 			
 			g.drawImage(cardBack, 10, screenHeight - cardHeight -100, cardWidth, cardHeight, this);
+			g.drawImage(cardBack,screenWidth-cardWidth-25, screenHeight - cardHeight -100, cardWidth, cardHeight, this);
 			g.setColor(Color.white);
 			g.drawString("DECK: " + deck.size() + "                                      HAND"
 					+ "                                         LIMBO", 
@@ -461,7 +462,11 @@ public class Onirim extends JFrame
 		return(x > drawMinX + fudgeX && x < drawMaxX + fudgeX
 				&& y > drawMinY + fudgeY && y < drawMaxY + fudgeY);	
 	}
-	
+	public boolean clickedEscape(int x, int y)//TODO program draw clicked escape screenWidth-cardWidth-25, screenHeight - cardHeight -100,
+	{
+		return(x > screenWidth-cardWidth-25 && x < screenWidth-25
+				&& y > drawMinY + fudgeY && y < drawMaxY + fudgeY);	
+	}
 	public void freeHand()
 	{
 		for(Card c : hand)
@@ -655,8 +660,6 @@ public class Onirim extends JFrame
 		int checkTwo =compareCards(a,c);
 		int checkThree = compareCards(c,b);
 		int checkSum = checkOne+checkTwo+checkThree;
-		System.out.println("here");
-		System.out.println(checkSum+" "+checkOne+" "+checkTwo+" "+checkThree);
 		if(checkOne>0&&checkTwo>0&&checkThree>0&&checkSum==3)
 		{
 			return true;
@@ -1228,7 +1231,10 @@ public class Onirim extends JFrame
 					deltaDragX = clickedProphecyCard(mickey.getX(), mickey.getY()).getX(); // set DeltaDragX
 					oldX = deltaDragX;  // a copy
 				}
-		
+				else if(crossroadExpansion&&clickedEscape(mickey.getX(), mickey.getY())&&hand.size() == 5)
+				{
+					escape();
+				}
 				if(hand.size() == 5)
 				{
 					shuffleLimbo();
