@@ -168,7 +168,6 @@ public class Onirim extends JFrame
 				limbo.add(new Card(xs, "locationSun", "wildCard"));
 			for (int i = 0; i < 2; i++) 
 				limbo.add(new Card(xm, "locationMoon", "wildCard"));
-			for (int i = 0; i < 50; i++)
 			limbo.add(new Card(xk, "locationKey", "wildCard"));
 			
 		}
