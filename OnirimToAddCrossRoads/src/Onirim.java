@@ -461,7 +461,7 @@ public class Onirim extends JFrame
 		return(x > drawMinX + fudgeX && x < drawMaxX + fudgeX
 				&& y > drawMinY + fudgeY && y < drawMaxY + fudgeY);	
 	}
-	public boolean clickedEscape(int x, int y)//TODO program draw clicked escape screenWidth-cardWidth-25, screenHeight - cardHeight -100,
+	public boolean clickedEscape(int x, int y)
 	{
 		return(x > screenWidth-cardWidth-25 && x < screenWidth-25
 				&& y > drawMinY + fudgeY && y < drawMaxY + fudgeY);	
@@ -614,7 +614,7 @@ public class Onirim extends JFrame
 		return !toRet;
 	}
 	
-	public boolean isDiscard(Card c)//TODO make the discard work
+	public boolean isDiscard(Card c)
 	{
 		return c.getY() <= drawMinY && c.getX() < drawMaxX - 5 && !(c.getType().contains("door"));
 	}
@@ -628,44 +628,37 @@ public class Onirim extends JFrame
 	// postcondition.  if we complete a set, we look for a door and update the indexOfLastSet
 	
 	//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-	public int compareCards(Card a, Card b)//compares two cards and returns 1 if they are both the same 
+	public boolean compareCards(Card a, Card b)//compares two cards and returns true if they are both the same or only contain one wildCard
 	{
 		
 		if(a.getColor().equals("wildCard"))
-		{
 			if(b.getColor().equals("wildCard"))
-			{
-				return 2;
-			}
+				return false;
 			else 
-				return 1;
-		}
+				return true;
+		
 		if(b.getColor().equals("wildCard"))
-		{
 			if(a.getColor().equals("wildCard"))
-			{
-				return 2;
-			}
+				return false;
 			else 
-				return 1;
-		}
+				return true;
+		
 		if(a.getColor().equals(b.getColor()))
-			return 1;
-		return 0;
+			return true;
+		return false;
 	}
 	public boolean validSet(Card a, Card b, Card c)// checks to see if the sum of a set is less than or equal to four
 	{
-		int checkOne = compareCards(a,b);
-		int checkTwo =compareCards(a,c);
-		int checkThree = compareCards(c,b);
-		int checkSum = checkOne+checkTwo+checkThree;
-		if(checkOne>0&&checkTwo>0&&checkThree>0&&checkSum==3)
+		boolean checkOne = compareCards(a,b);
+		boolean checkTwo =compareCards(a,c);
+		boolean checkThree = compareCards(c,b);
+		if(checkOne&&checkTwo&&checkThree)
 		{
 			return true;
 		}
 		return false;
 	}
-	public void playLocation(Card c)//TODO
+	public void playLocation(Card c)
 	{
 		numLocationsPlayed++; 
 		hand.remove(c);
@@ -1136,7 +1129,7 @@ public class Onirim extends JFrame
 		public void mouseEntered(MouseEvent mickey) {}
 		public void mouseExited(MouseEvent mickey) {}
 		
-		public void mousePressed(MouseEvent mickey) //TODO add in the trapdoor maybe do this in mouse released instead?
+		public void mousePressed(MouseEvent mickey)
 		{
 			if(titleScreen)
 			{
