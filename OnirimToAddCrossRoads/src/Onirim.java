@@ -31,6 +31,7 @@ public class Onirim extends JFrame
 	private Image cardBack = ResourceLoader.getImage("Onirim.png");
 	
 	private Image nightmare = ResourceLoader.getImage("Nightmare.png");
+	private Image trapdoor = ResourceLoader.getImage("Trapdoor.png");
 	private Image td = ResourceLoader.getImage("TanDoor.png");
 	private Image bd = ResourceLoader.getImage("BlueDoor.png");
 	private Image rd = ResourceLoader.getImage("RedDoor.png");
@@ -46,10 +47,10 @@ public class Onirim extends JFrame
 	private Image xk = ResourceLoader.getImage("CrossroadKey.png");
 	private Image deadEnd = ResourceLoader.getImage("DeadEnd.png");
 	
-//	private Image rg = ResourceLoader.getImage("RedGlyph.png");
-//	private Image bg = ResourceLoader.getImage("BlueGlyph.png");
-//	private Image gg = ResourceLoader.getImage("GreenGlyph.png");
-//	private Image tg = ResourceLoader.getImage("TanGlyph.png");
+	private Image rg = ResourceLoader.getImage("RedGlyph.png");
+	private Image bg = ResourceLoader.getImage("BlueGlyph.png");
+	private Image gg = ResourceLoader.getImage("GreenGlyph.png");
+	private Image tg = ResourceLoader.getImage("TanGlyph.png");
 //	private Image spellCard = ResourceLoader.getImage("SpellCard.png");
 	
 //	private Image r3 = ResourceLoader.getImage("RedTowerThree.png");
@@ -94,7 +95,7 @@ public class Onirim extends JFrame
 	
 	private Card doorFromSet, doorFromKey; // is null used for scoring doors
 	
-	private boolean firstDraw = true, prophecyInPlay, movedProphecyCard; 
+	private boolean firstDraw = true, prophecyInPlay,glyphProphecyInPlay, movedProphecyCard; 
 //	private boolean incantationInPlay, movedIncantationCard;
 //	private boolean paradoxicalProphecyInPlay, movedParadoxicalProphecyCard;
 	private boolean fillingHandSoIgnoreNightmares;
@@ -114,7 +115,7 @@ public class Onirim extends JFrame
 	public Random randy = new Random(); 
 
 	private boolean crossroadExpansion = false;
-//	private boolean glyphsExpansion = false;
+	private boolean glyphsExpansion = false;
 //	private boolean bookOfStepsLostAndFoundExpansion = false;
 //	private boolean towersExpansion = false;
 	
@@ -169,6 +170,27 @@ public class Onirim extends JFrame
 			for (int i = 0; i < 2; i++) 
 				limbo.add(new Card(xm, "locationMoon", "wildCard"));
 			limbo.add(new Card(xk, "locationKey", "wildCard"));
+			
+		}
+		if(glyphsExpansion)
+		{
+			//add in crossroad keys suns moons and deadends
+			//10 dead ends
+			// 1 key
+			// 3 suns
+			// 2 moons
+			for (int i = 0; i < 23; i++)
+			{
+				limbo.add(new Card(gg, "locationGlyph", "green"));
+				limbo.add(new Card(bg, "locationGlyph", "blue"));
+				limbo.add(new Card(rg, "locationGlyph", "red"));
+				limbo.add(new Card(tg, "locationGlyph", "tan"));
+			}
+
+			
+		}
+		if(glyphsExpansion)
+		{
 			
 		}
 		
@@ -276,6 +298,12 @@ public class Onirim extends JFrame
 			g.drawImage(xs, 50 + 10 + cardWidth, yStart + 1*yChange, cardWidth, cardHeight, this);
 			g.drawImage(xm, 50 + 40 + cardWidth, yStart + 1*yChange, cardWidth, cardHeight, this);
 			g.drawImage(xk, 50 + 70 + cardWidth, yStart + 1*yChange, cardWidth, cardHeight, this);
+			g.drawString("Glyphs",  500, yStart + 3*cardHeight/2 + yChange + 5);
+			g.drawImage(gg,50, yStart + 2*yChange, cardWidth, cardHeight, this);
+			g.drawImage(bg,50+30, yStart + 2*yChange, cardWidth, cardHeight, this);
+			g.drawImage(rg,50+60, yStart + 2*yChange, cardWidth, cardHeight, this);
+			g.drawImage(tg,50+90, yStart + 2*yChange, cardWidth, cardHeight, this);
+			g.fillRect(20, yStart + 3*cardHeight/2+ yChange, 20, 20);
 			
 			g.setColor(Color.yellow);
 			
@@ -283,10 +311,15 @@ public class Onirim extends JFrame
 			{
 				g.fillRect(20, yStart + 3*cardHeight/2 /*+ yChange*/, 20, 20);
 			}
+			if(glyphsExpansion)
+			{
+				g.fillRect(20, yStart + 3*cardHeight/2 + yChange, 20, 20);
+			}
 			
 			g.setColor(Color.black);
 			
 			g.drawRect(20, yStart + 3*cardHeight/2 /*+ yChange*/, 20, 20);
+			g.drawRect(20, yStart + 3*cardHeight/2 + yChange, 20, 20);
 		
 			g.setColor(Color.white);
 		}
@@ -307,7 +340,9 @@ public class Onirim extends JFrame
 			}
 			
 			g.drawImage(cardBack, 10, screenHeight - cardHeight -100, cardWidth, cardHeight, this);
-			g.drawImage(cardBack,screenWidth-cardWidth-25, screenHeight - cardHeight -100, cardWidth, cardHeight, this);
+			if (crossroadExpansion)
+				g.drawImage(trapdoor,screenWidth-cardWidth-25, screenHeight - cardHeight -100, cardWidth, cardHeight, this);
+		
 			g.setColor(Color.white);
 			g.drawString("DECK: " + deck.size() + "                                      HAND"
 					+ "                                         LIMBO", 
@@ -932,7 +967,41 @@ public class Onirim extends JFrame
 			c.setMovable(false);
 		prophecyInPlay = false; // there must have been all doors in hand
 	}
-	
+	public void setGlyphProphecy(int numForsee, int numDiscard)
+	{
+		emptyProphecy(); // in case you still have cards in the deck when you trigger
+		glyphProphecyInPlay = true;		// another prophecy TODO figure out why this breaks
+		// set the original 5 cards.
+		numProphecyCardsToDiscard = numDiscard;
+		numProphecyCardsToDisplay = numForsee;
+		for(int i = 0; i < numForsee; i++)
+		{
+			if(i >= deck.size())
+			{
+				numProphecyCardsToDisplay = i;
+				break; 
+			}
+			Card temp = deck.get(i);
+			toDraw.add(temp);
+			prophecyCards.add(temp);
+			temp.setY(drawMinY - cardHeight);
+			temp.setX(drawMaxX + cardWidth*(i+1));
+			temp.setMovable(true);  
+			temp.setVisible(true);
+		}
+		// WHAT IF ALL OF THE CARDS ARE DOORS.  WE CAN'T DISCARD DOORS
+		for(Card c : prophecyCards)
+		{
+			if(!(c.getType().contains("door")))
+			{
+				lockHand();
+				return;
+			}
+		}
+		for(Card c : prophecyCards)
+			c.setMovable(false);
+		glyphProphecyInPlay = false; // there must have been all doors in hand
+	}
 	public Card clickedProphecyCard(int x, int y)
 	{
 		if(!prophecyInPlay)
@@ -1142,6 +1211,12 @@ public class Onirim extends JFrame
 				{
 					crossroadExpansion = !crossroadExpansion;
 				}
+				if(mickey.getX() >= 20 + fudgeX && mickey.getX() <= 40 + fudgeX 
+						&& mickey.getY() >= y1 + fudgeY + yChange
+						&& mickey.getY() <= y1 + 20 + fudgeY + yChange)
+				{
+					glyphsExpansion = !glyphsExpansion;
+				}
 				if(mickey.getX() >= 750 + fudgeX && mickey.getX() <= 750 + fudgeX + 2*cardWidth
 						&& mickey.getY() >= 120 - cardHeight/2 + 10 + 5*yChange/3 + fudgeY 
 						&& mickey.getY() <= 120 - cardHeight/2 + 10 + 5*yChange/3 + 2*cardHeight + fudgeY) 
@@ -1260,6 +1335,10 @@ public class Onirim extends JFrame
 						if(c.getType().contains("Key") )
 						{
 							setProphecy(5, 1);  // Changed setProphecy
+						}
+						if(c.getType().contains("Glyph") )
+						{
+							setGlyphProphecy(5, 0);  // Changed setProphecy
 						}
 
 					}
