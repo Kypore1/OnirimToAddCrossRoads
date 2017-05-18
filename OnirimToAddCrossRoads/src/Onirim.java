@@ -93,7 +93,7 @@ public class Onirim extends JFrame
 	private Font endFont = new Font("Castellar", Font.PLAIN, 100);
 	private Font titleFont = new Font("Elephant", Font.PLAIN, 40);
 	
-	private Card doorFromSet, doorFromKey; // is null used for scoring doors
+	private Card doorFromSet, doorFromKey,doorFromGlyph; // is null used for scoring doors
 	
 	private boolean firstDraw = true, prophecyInPlay,glyphProphecyInPlay, movedProphecyCard; 
 //	private boolean incantationInPlay, movedIncantationCard;
@@ -151,7 +151,17 @@ public class Onirim extends JFrame
 				
 		limbo.add(new Card(td, "door", "tan"));
 		limbo.add(new Card(td, "door", "tan"));
-
+		
+		if (glyphsExpansion) 
+		{
+			limbo.add(new Card(rd, "door", "red"));
+					
+			limbo.add(new Card(bd, "door", "blue"));
+					
+			limbo.add(new Card(gd, "door", "green"));
+					
+			limbo.add(new Card(td, "door", "tan"));
+		}
 		
 		
 		
@@ -179,7 +189,7 @@ public class Onirim extends JFrame
 			// 1 key
 			// 3 suns
 			// 2 moons
-			for (int i = 0; i < 23; i++)
+			for (int i = 0; i < 2; i++)
 			{
 				limbo.add(new Card(gg, "locationGlyph", "green"));
 				limbo.add(new Card(bg, "locationGlyph", "blue"));
@@ -490,7 +500,19 @@ public class Onirim extends JFrame
 		}
 		prophecyCards.clear();
 	}
-	
+	public void emptyGlyphProphecy()
+	{
+		for(Card c : prophecyCards)
+		{
+			c.setX(-200);
+			c.setY(0);
+			c.setVisible(false);
+			deck.add(c);
+		}
+		prophecyInPlay=false;
+		glyphProphecyInPlay=false;
+		prophecyCards.clear();
+	}
 	public boolean clickedDeck(int x, int y)
 	{
 		return(x > drawMinX + fudgeX && x < drawMaxX + fudgeX
@@ -652,6 +674,13 @@ public class Onirim extends JFrame
 	public boolean isDiscard(Card c)
 	{
 		return c.getY() <= drawMinY && c.getX() < drawMaxX - 5 && !(c.getType().contains("door"));
+	}
+	public boolean isDoor(Card c)
+	{
+		boolean toRet = (c.getX() >= cardWidth + fudgeX
+				&& c.getY() <= 120 - cardHeight/2 + 10 + + fudgeY);
+		System.out.println(toRet);
+		return toRet;
 	}
 	
 	
@@ -856,10 +885,39 @@ public class Onirim extends JFrame
 		shuffleDeck();
 		gameOver = checkForWin();
 	}
-	
+	public void scoreDoorFromGlyph(Card c)//TODO add cards to bottom of deck 
+	{
+		doorFromGlyph = c;
+		doorFromGlyph.setVisible(true);
+		if(nextDoorIndex() == playedDoors.size())
+		{
+			playedDoors.add(doorFromGlyph);
+		}
+		else
+		{
+			playedDoors.set(nextDoorIndex(), doorFromGlyph);
+		}
+		
+		prophecyCards.remove(doorFromGlyph);
+		deck.remove(doorFromGlyph);
+		doorFromGlyph.setMovable(false);
+		doorFromGlyph.setMovable(false);
+		adjustPlayedDoors();  
+		doorFromSet = null;
+		gameOver = checkForWin();
+	}
 	public boolean checkForWin()
 	{
-		return playedDoors.size() == 8;
+		boolean toRet;
+		if(glyphsExpansion)
+		{
+			toRet= playedDoors.size() == 12;
+		}
+		else
+		{
+			toRet = playedDoors.size() == 8;
+		}
+		return toRet;
 	}
 	
 	public void scoreDoorFromKey(Card k)
@@ -971,6 +1029,7 @@ public class Onirim extends JFrame
 	{
 		emptyProphecy(); // in case you still have cards in the deck when you trigger
 		glyphProphecyInPlay = true;		// another prophecy TODO figure out why this breaks
+		prophecyInPlay = true;
 		// set the original 5 cards.
 		numProphecyCardsToDiscard = numDiscard;
 		numProphecyCardsToDisplay = numForsee;
@@ -1261,6 +1320,11 @@ public class Onirim extends JFrame
 						shuffleLimbo();
 					}
 				}
+				else if(glyphProphecyInPlay&&clickedDeck(mickey.getX(), mickey.getY()))
+				{
+					emptyGlyphProphecy();
+					drawCard();
+				}
 				else if(prophecyInPlay && numProphecyCardsToDiscard == 0 
 						&& clickedDeck(mickey.getX(), mickey.getY()))
 				{
@@ -1269,7 +1333,7 @@ public class Onirim extends JFrame
 					adjustProphecy();
 					drawCard();
 				}
-			
+
 				else if(hand.size() != 5 && // draw card for fill hand.  
 							clickedDeck(mickey.getX(), mickey.getY()))
 				{
@@ -1354,7 +1418,12 @@ public class Onirim extends JFrame
 							numProphecyCardsToDiscard = 0; 
 							numProphecyCardsToDisplay = 0;
 						}
-						
+						else if(isDoor(c)&&c.getType().contains("door"))
+						{
+							scoreDoorFromGlyph(c);
+							emptyGlyphProphecy();
+							
+						}
 						else if(movedProphecyCard)
 						{
 							movedProphecyCard = false;
