@@ -679,7 +679,6 @@ public class Onirim extends JFrame
 	{
 		boolean toRet = (c.getX() >= cardWidth + fudgeX
 				&& c.getY() <= 120 - cardHeight/2 + 10 + + fudgeY);
-		System.out.println(toRet);
 		return toRet;
 	}
 	
